@@ -415,14 +415,14 @@ public final class SendCoinsFragment extends Fragment {
 
             if (id == ID_RECEIVING_ADDRESS_BOOK_LOADER)
                 return new CursorLoader(context, AddressBookProvider.contentUri(context.getPackageName()), null,
-                        AddressBookProvider.SELECTION_QUERY, new String[] { constraint }, null);
+                        AddressBookProvider.SELECTION_QUERY, new String[]{constraint}, null);
             else
                 throw new IllegalArgumentException();
         }
 
         @Override
         public void onLoadFinished(final Loader<Cursor> loader, Cursor data) {
-            if (data.getCount() == 0)
+            if (data != null && data.getCount() == 0)
                 data = null;
             if (loader instanceof CursorLoader)
                 receivingAddressBookCursor = data;
