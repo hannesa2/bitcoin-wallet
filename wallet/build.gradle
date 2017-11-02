@@ -1,3 +1,5 @@
+import fr.avianey.androidsvgdrawable.gradle.SvgDrawableTask
+
 apply plugin: 'com.android.application'
 apply plugin: 'androidsvgdrawable'
 
@@ -32,16 +34,29 @@ dependencies {
 
 def versionNr = '5'
 
-def getGitCommitCount() {
+static def getGitCommitCount() {
     def process = "git rev-list HEAD --count".execute()
     return process.text.toInteger()
 }
 
-def getLatestGitHash() {
+static def getLatestGitHash() {
     def process = "git rev-parse --short HEAD".execute()
     return process.text.toString().trim()
 }
 
+static def getLongGitHash() {
+    def process = "git rev-parse HEAD".execute()
+    return process.text.toString().trim()
+}
+
+def getGitRepoUrl() {
+    def process = "git remote get-url origin --push".execute()
+    return process.text.toString().replace(".git", "").trim()
+}
+
+static def getGitCommitUrl() {
+    return getGitRepoUrl() + "/commit/" + getLongGitHash()
+}
 
 android {
     compileSdkVersion defaultCompiledkVersion
@@ -58,17 +73,38 @@ android {
         versionName versionNr + "." + versionCode + "-" + getLatestGitHash()
         minSdkVersion defaultMinSdkVersion
         targetSdkVersion defaultTargetSdkVersion
+        applicationId "info.wallet.trust"
         multiDexEnabled true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+        buildConfigField "String", "GIT_COMMIT_URL", "\"" + getGitCommitUrl() + "\""
+        buildConfigField "String", "GIT_REPO_URL", "\"" + getGitRepoUrl() + "\""
+        buildConfigField "String", "GIT_TAG_URL", "\"" + getGitRepoUrl()+"/tags" + "\""
+    }
+
+    signingConfigs {
+        if (System.getenv("CI_SERVER")) {
+            release {
+                println "KEYSTORE_FILE=" + System.getenv('KEYSTORE_FILE')
+                storeFile rootProject.file(System.getenv('KEYSTORE_FILE'))
+                storePassword System.getenv("KEYSTORE_PASS")
+                keyAlias System.getenv("ALIAS_NAME")
+                keyPassword System.getenv("ALIAS_PASS")
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled true
             proguardFile 'proguard.cfg'
+            if (System.getenv("CI_SERVER")) {
+                signingConfig signingConfigs.release
+            }
         }
         debug {
             debuggable true
+            applicationIdSuffix ".debug"
+            versionNameSuffix ".debug"
         }
     }
 
@@ -99,7 +135,15 @@ android {
     }
 }
 
-task svgToPngMipmap(type: fr.avianey.androidsvgdrawable.gradle.SvgDrawableTask) {
+play {
+    if (System.getenv("CI_SERVER")) {
+        track = 'alpha'
+        serviceAccountEmail = System.getenv('PLAY_SERVICE_MAIL')
+        pk12File = rootProject.file(System.getenv('PLAY_P12_FILE'))
+    }
+}
+
+task svgToPngMipmap(type: SvgDrawableTask) {
     from = files('graphics/mipmap')
     to = file('res')
     targetedDensities = ['hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi']
