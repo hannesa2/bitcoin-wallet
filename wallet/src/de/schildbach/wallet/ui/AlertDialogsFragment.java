@@ -17,23 +17,6 @@
 
 package de.schildbach.wallet.ui;
 
-import java.io.BufferedReader;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.util.Iterator;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-
-import de.schildbach.wallet.Constants;
-import de.schildbach.wallet.WalletApplication;
-import de.schildbach.wallet.util.CrashReporter;
-import de.schildbach.wallet.R;
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.Fragment;
@@ -51,10 +34,23 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.text.format.DateUtils;
-import okhttp3.Call;
-import okhttp3.HttpUrl;
-import okhttp3.Request;
-import okhttp3.Response;
+
+import com.google.common.base.Splitter;
+import com.squareup.okhttp.Call;
+import com.squareup.okhttp.HttpUrl;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.util.Iterator;
+
+import de.schildbach.wallet.BuildConfig;
+import de.schildbach.wallet.Constants;
+import de.schildbach.wallet.R;
+import de.schildbach.wallet.WalletApplication;
 
 /**
  * @author Andreas Schildbach
@@ -70,15 +66,15 @@ public class AlertDialogsFragment extends Fragment {
         }
     }
 
-    private Activity activity;
+    private Activity          activity;
     private WalletApplication application;
-    private PackageManager packageManager;
+    private PackageManager    packageManager;
 
     private HttpUrl versionUrl;
 
     private final Handler handler = new Handler();
     private HandlerThread backgroundThread;
-    private Handler backgroundHandler;
+    private Handler       backgroundHandler;
 
     private static final Logger log = LoggerFactory.getLogger(AlertDialogsFragment.class);
 
@@ -101,13 +97,9 @@ public class AlertDialogsFragment extends Fragment {
 
         final PackageInfo packageInfo = application.packageInfo();
         final int versionNameSplit = packageInfo.versionName.indexOf('-');
-        final HttpUrl.Builder url = HttpUrl
-                .parse(Constants.VERSION_URL
-                        + (versionNameSplit >= 0 ? packageInfo.versionName.substring(versionNameSplit) : ""))
+        final HttpUrl.Builder url = HttpUrl.parse(Constants.VERSION_URL.toString())
                 .newBuilder();
         url.addEncodedQueryParameter("package", packageInfo.packageName);
-        url.addEncodedQueryParameter("installer",
-                Strings.nullToEmpty(packageManager.getInstallerPackageName(packageInfo.packageName)));
         url.addQueryParameter("current", Integer.toString(packageInfo.versionCode));
         versionUrl = url.build();
     }
@@ -167,7 +159,7 @@ public class AlertDialogsFragment extends Fragment {
                         }
                     }
                 } catch (final Exception x) {
-                    handleException(x);
+                    android.widget.Toast.makeText(getActivity(), x.getMessage(), android.widget.Toast.LENGTH_LONG);
                 }
                 if (!abort)
                     handleCatchAll();
@@ -259,16 +251,6 @@ public class AlertDialogsFragment extends Fragment {
         return false;
     }
 
-    private void handleException(final Exception x) {
-        if (x instanceof UnknownHostException || x instanceof SocketException || x instanceof SocketTimeoutException) {
-            // swallow
-            log.debug("problem reading", x);
-        } else {
-            CrashReporter.saveBackgroundTrace(new RuntimeException(versionUrl.toString(), x),
-                    application.packageInfo());
-        }
-    }
-
     private Dialog createTimeskewAlertDialog(final long diffMinutes) {
         final Intent settingsIntent = new Intent(android.provider.Settings.ACTION_DATE_SETTINGS);
         final DialogBuilder dialog = DialogBuilder.warn(activity, R.string.wallet_timeskew_dialog_title);
@@ -293,7 +275,7 @@ public class AlertDialogsFragment extends Fragment {
     private Dialog createVersionAlertDialog() {
         final Intent marketIntent = new Intent(Intent.ACTION_VIEW,
                 Uri.parse(String.format(Constants.MARKET_APP_URL, application.packageInfo().packageName)));
-        final Intent binaryIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.BINARY_URL));
+        final Intent binaryIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.GIT_TAG_URL));
 
         final DialogBuilder dialog = DialogBuilder.warn(activity, R.string.wallet_version_dialog_title);
         final StringBuilder message = new StringBuilder(getString(R.string.wallet_version_dialog_msg));

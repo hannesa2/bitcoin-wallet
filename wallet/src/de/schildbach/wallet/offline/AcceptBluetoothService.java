@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.schildbach.wallet.WalletApplication;
-import de.schildbach.wallet.util.CrashReporter;
 import de.schildbach.wallet.util.Toast;
 import de.schildbach.wallet.R;
 
@@ -109,7 +108,6 @@ public final class AcceptBluetoothService extends Service {
             paymentProtocolThread.start();
         } catch (final IOException x) {
             new Toast(this).longToast(R.string.error_bluetooth, x.getMessage());
-            CrashReporter.saveBackgroundTrace(x, application.packageInfo());
         }
     }
 
