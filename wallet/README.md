@@ -73,7 +73,7 @@ Finally, you can build Bitcoin Wallet and sign it with your development key. Aga
 use:
 
     # first time only
-    git clone -b master https://github.com/bitcoin-wallet/bitcoin-wallet.git bitcoin-wallet
+    git clone -b master https://git.mxtracks.info/open-source/bitcoin-wallet.git
 
     # each time
     cd bitcoin-wallet
