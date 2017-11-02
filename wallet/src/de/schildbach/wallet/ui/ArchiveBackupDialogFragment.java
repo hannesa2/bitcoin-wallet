@@ -22,6 +22,7 @@ import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.schildbach.wallet.BuildConfig;
 import de.schildbach.wallet.Constants;
 import de.schildbach.wallet.util.WholeStringBuilder;
 import de.schildbach.wallet.R;
@@ -103,7 +104,7 @@ public class ArchiveBackupDialogFragment extends DialogFragment {
         builder.setSubject(getString(R.string.export_keys_dialog_mail_subject)
                 + Constants.Files.EXTERNAL_WALLET_BACKUP_SUBJECT_SUFFIX);
         builder.setText(getString(R.string.export_keys_dialog_mail_text) + "\n\n"
-                + String.format(Constants.WEBMARKET_APP_URL, activity.getPackageName()) + "\n\n" + Constants.SOURCE_URL
+                + String.format(Constants.WEBMARKET_APP_URL, activity.getPackageName()) + "\n\n" + BuildConfig.GIT_REPO_URL
                 + '\n');
         builder.setType(Constants.MIMETYPE_WALLET_BACKUP);
         builder.setStream(

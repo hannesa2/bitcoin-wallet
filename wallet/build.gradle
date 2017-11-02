@@ -42,6 +42,19 @@ def getLatestGitHash() {
     return process.text.toString().trim()
 }
 
+def getLongGitHash() {
+    def process = "git rev-parse HEAD".execute()
+    return process.text.toString().trim()
+}
+
+def getGitRepoUrl() {
+    def process = "git remote get-url origin --push".execute()
+    return process.text.toString().replace(".git","").trim()
+}
+
+def getGitCommitUrl() {
+    return getGitRepoUrl() + "/commit/" + getLongGitHash()
+}
 
 android {
     compileSdkVersion defaultCompiledkVersion
@@ -58,17 +71,37 @@ android {
         versionName versionNr + "." + versionCode + "-" + getLatestGitHash()
         minSdkVersion defaultMinSdkVersion
         targetSdkVersion defaultTargetSdkVersion
+        applicationId "info.wallet.trust"
         multiDexEnabled true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+        buildConfigField "String", "GIT_COMMIT_URL", "\"" + getGitCommitUrl() + "\""
+        buildConfigField "String", "GIT_REPO_URL", "\"" + getGitRepoUrl() + "\""
+        buildConfigField "String", "GIT_TAG_URL", "\"" + getGitRepoUrl()+"/tags" + "\""
+    }
+
+    signingConfigs {
+        if (System.getenv("TRAVIS")) {
+            release {
+                storeFile rootProject.file('release.keystore')
+                storePassword System.getenv("KEYSTORE_PASS")
+                keyAlias System.getenv("ALIAS_NAME")
+                keyPassword System.getenv("ALIAS_PASS")
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled true
             proguardFile 'proguard.cfg'
+            if (System.getenv("TRAVIS")) {
+                signingConfig signingConfigs.release
+            }
         }
         debug {
             debuggable true
+            applicationIdSuffix ".debug"
+            versionNameSuffix ".debug"
         }
     }
 

@@ -32,6 +32,7 @@ import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
+import de.schildbach.wallet.BuildConfig;
 import de.schildbach.wallet.Constants;
 import de.schildbach.wallet.WalletApplication;
 import de.schildbach.wallet.util.CrashReporter;
@@ -290,7 +291,7 @@ public class AlertDialogsFragment extends Fragment {
     private Dialog createVersionAlertDialog() {
         final Intent marketIntent = new Intent(Intent.ACTION_VIEW,
                 Uri.parse(String.format(Constants.MARKET_APP_URL, application.packageInfo().packageName)));
-        final Intent binaryIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.BINARY_URL));
+        final Intent binaryIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.GIT_TAG_URL));
 
         final DialogBuilder dialog = DialogBuilder.warn(activity, R.string.wallet_version_dialog_title);
         final StringBuilder message = new StringBuilder(getString(R.string.wallet_version_dialog_msg));
