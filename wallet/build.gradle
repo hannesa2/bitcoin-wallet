@@ -58,17 +58,34 @@ android {
         versionName versionNr + "." + versionCode + "-" + getLatestGitHash()
         minSdkVersion defaultMinSdkVersion
         targetSdkVersion defaultTargetSdkVersion
+        applicationId "info.hannes.wallet"
         multiDexEnabled true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+    }
+
+    signingConfigs {
+        if (System.getenv("TRAVIS")) {
+            release {
+                storeFile rootProject.file('release.keystore')
+                storePassword System.getenv("KEYSTORE_PASS")
+                keyAlias System.getenv("ALIAS_NAME")
+                keyPassword System.getenv("ALIAS_PASS")
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled true
             proguardFile 'proguard.cfg'
+            if (System.getenv("TRAVIS")) {
+                signingConfig signingConfigs.release
+            }
         }
         debug {
             debuggable true
+            applicationIdSuffix ".debug"
+            versionNameSuffix ".debug"
         }
     }
 
