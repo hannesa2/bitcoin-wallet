@@ -66,15 +66,15 @@ public class AlertDialogsFragment extends Fragment {
         }
     }
 
-    private Activity activity;
+    private Activity          activity;
     private WalletApplication application;
-    private PackageManager packageManager;
+    private PackageManager    packageManager;
 
     private HttpUrl versionUrl;
 
     private final Handler handler = new Handler();
     private HandlerThread backgroundThread;
-    private Handler backgroundHandler;
+    private Handler       backgroundHandler;
 
     private static final Logger log = LoggerFactory.getLogger(AlertDialogsFragment.class);
 
@@ -97,12 +97,11 @@ public class AlertDialogsFragment extends Fragment {
 
         final PackageInfo packageInfo = application.packageInfo();
         final int versionNameSplit = packageInfo.versionName.indexOf('-');
-        final HttpUrl.Builder url = HttpUrl
-                .parse(Constants.VERSION_URL
-                        + (versionNameSplit >= 0 ? packageInfo.versionName.substring(versionNameSplit) : ""))
+        final HttpUrl.Builder url = HttpUrl.parse(Constants.VERSION_URL.toString())
                 .newBuilder();
-        url.addEncodedQueryParameter("package", packageInfo.packageName);
-        url.addQueryParameter("current", Integer.toString(packageInfo.versionCode));
+        // Just use last forked version
+        url.addEncodedQueryParameter("package", "de.schildbach.wallet");
+        url.addQueryParameter("current", Integer.toString(318));
         versionUrl = url.build();
     }
 
@@ -161,7 +160,7 @@ public class AlertDialogsFragment extends Fragment {
                         }
                     }
                 } catch (final Exception x) {
-                    android.widget.Toast.makeText(getActivity(), x.getMessage(),android.widget.Toast.LENGTH_LONG);
+                    android.widget.Toast.makeText(getActivity(), x.getMessage(), android.widget.Toast.LENGTH_LONG);
                 }
                 if (!abort)
                     handleCatchAll();
