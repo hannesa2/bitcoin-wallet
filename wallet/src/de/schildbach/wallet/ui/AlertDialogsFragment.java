@@ -17,27 +17,6 @@
 
 package de.schildbach.wallet.ui;
 
-import java.io.BufferedReader;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.util.Iterator;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Splitter;
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.HttpUrl;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
-import de.schildbach.wallet.BuildConfig;
-import de.schildbach.wallet.Constants;
-import de.schildbach.wallet.WalletApplication;
-import de.schildbach.wallet.util.CrashReporter;
-import de.schildbach.wallet.R;
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.Fragment;
@@ -55,6 +34,23 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.text.format.DateUtils;
+
+import com.google.common.base.Splitter;
+import com.squareup.okhttp.Call;
+import com.squareup.okhttp.HttpUrl;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.util.Iterator;
+
+import de.schildbach.wallet.BuildConfig;
+import de.schildbach.wallet.Constants;
+import de.schildbach.wallet.R;
+import de.schildbach.wallet.WalletApplication;
 
 /**
  * @author Andreas Schildbach
@@ -165,7 +161,7 @@ public class AlertDialogsFragment extends Fragment {
                         }
                     }
                 } catch (final Exception x) {
-                    handleException(x);
+                    android.widget.Toast.makeText(getActivity(), x.getMessage(),android.widget.Toast.LENGTH_LONG);
                 }
                 if (!abort)
                     handleCatchAll();
@@ -255,16 +251,6 @@ public class AlertDialogsFragment extends Fragment {
             return true;
         }
         return false;
-    }
-
-    private void handleException(final Exception x) {
-        if (x instanceof UnknownHostException || x instanceof SocketException || x instanceof SocketTimeoutException) {
-            // swallow
-            log.debug("problem reading", x);
-        } else {
-            CrashReporter.saveBackgroundTrace(new RuntimeException(versionUrl.toString(), x),
-                    application.packageInfo());
-        }
     }
 
     private Dialog createTimeskewAlertDialog(final long diffMinutes) {

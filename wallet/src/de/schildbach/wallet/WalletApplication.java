@@ -45,7 +45,6 @@ import com.google.common.collect.ImmutableList;
 
 import de.schildbach.wallet.service.BlockchainService;
 import de.schildbach.wallet.service.BlockchainServiceImpl;
-import de.schildbach.wallet.util.CrashReporter;
 import de.schildbach.wallet.BuildConfig;
 import de.schildbach.wallet.R;
 
@@ -119,16 +118,6 @@ public class WalletApplication extends Application {
         super.onCreate();
 
         packageInfo = packageInfoFromContext(this);
-
-        CrashReporter.init(getCacheDir());
-
-        Threading.uncaughtExceptionHandler = new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(final Thread thread, final Throwable throwable) {
-                log.info("bitcoinj uncaught exception", throwable);
-                CrashReporter.saveBackgroundTrace(throwable, packageInfo);
-            }
-        };
 
         initMnemonicCode();
 
