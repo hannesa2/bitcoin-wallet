@@ -130,15 +130,6 @@ public final class Constants {
     public static final String DONATION_ADDRESS = NETWORK_PARAMETERS.getId().equals(NetworkParameters.ID_MAINNET)
             ? "1DrA5mob5A2YAtoAKxN1UnsK8C5bm9K293" : null;
 
-    /** Recipient e-mail address for reports. */
-    public static final String REPORT_EMAIL = "appdev.droider@gmail.com";
-
-    /** Subject line for manually reported issues. */
-    public static final String REPORT_SUBJECT_ISSUE = "Reported issue";
-
-    /** Subject line for crash reports. */
-    public static final String REPORT_SUBJECT_CRASH = "Crash report";
-
     public static final char CHAR_HAIR_SPACE = '\u200a';
     public static final char CHAR_THIN_SPACE = '\u2009';
     public static final char CHAR_ALMOST_EQUAL_TO = '\u2248';

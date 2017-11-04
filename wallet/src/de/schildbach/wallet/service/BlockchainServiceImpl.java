@@ -72,7 +72,6 @@ import de.schildbach.wallet.WalletBalanceWidgetProvider;
 import de.schildbach.wallet.data.AddressBookProvider;
 import de.schildbach.wallet.service.BlockchainState.Impediment;
 import de.schildbach.wallet.ui.WalletActivity;
-import de.schildbach.wallet.util.CrashReporter;
 import de.schildbach.wallet.util.ThrottlingWalletChangeListener;
 import de.schildbach.wallet.util.WalletUtils;
 import de.schildbach.wallet.R;
@@ -387,7 +386,6 @@ public class BlockchainServiceImpl extends android.app.Service implements Blockc
                     final String message = "wallet/blockchain out of sync: " + walletLastBlockSeenHeight + "/"
                             + bestChainHeight;
                     log.error(message);
-                    CrashReporter.saveBackgroundTrace(new RuntimeException(message), application.packageInfo());
                 }
 
                 log.info("starting peergroup");

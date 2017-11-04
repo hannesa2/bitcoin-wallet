@@ -46,7 +46,6 @@ import de.schildbach.wallet.ui.InputParser.StringInputParser;
 import de.schildbach.wallet.ui.preference.PreferenceActivity;
 import de.schildbach.wallet.ui.send.SendCoinsActivity;
 import de.schildbach.wallet.ui.send.SweepWalletActivity;
-import de.schildbach.wallet.util.CrashReporter;
 import de.schildbach.wallet.util.Crypto;
 import de.schildbach.wallet.util.Io;
 import de.schildbach.wallet.util.Nfc;
@@ -131,7 +130,6 @@ public final class WalletActivity extends AbstractBindServiceActivity
             if (slideInBottomView != null)
                 slideInBottomView.startAnimation(AnimationUtils.loadAnimation(this, R.anim.slide_in_bottom));
 
-            checkSavedCrashTrace();
         }
 
         config.touchLastUsed();
@@ -325,10 +323,6 @@ public final class WalletActivity extends AbstractBindServiceActivity
             HelpDialogFragment.page(getFragmentManager(), R.string.help_technical_notes);
             return true;
 
-        case R.id.wallet_options_report_issue:
-            handleReportIssue();
-            return true;
-
         case R.id.wallet_options_help:
             HelpDialogFragment.page(getFragmentManager(), R.string.help_wallet);
             return true;
@@ -369,36 +363,6 @@ public final class WalletActivity extends AbstractBindServiceActivity
 
     public void handleEncryptKeys() {
         EncryptKeysDialogFragment.show(getFragmentManager());
-    }
-
-    private void handleReportIssue() {
-        final ReportIssueDialogBuilder dialog = new ReportIssueDialogBuilder(this,
-                R.string.report_issue_dialog_title_issue, R.string.report_issue_dialog_message_issue) {
-            @Override
-            protected String subject() {
-                return Constants.REPORT_SUBJECT_ISSUE + ": " + WalletApplication.versionLine(application.packageInfo());
-            }
-
-            @Override
-            protected CharSequence collectApplicationInfo() throws IOException {
-                final StringBuilder applicationInfo = new StringBuilder();
-                CrashReporter.appendApplicationInfo(applicationInfo, application);
-                return applicationInfo;
-            }
-
-            @Override
-            protected CharSequence collectDeviceInfo() throws IOException {
-                final StringBuilder deviceInfo = new StringBuilder();
-                CrashReporter.appendDeviceInfo(deviceInfo, WalletActivity.this);
-                return deviceInfo;
-            }
-
-            @Override
-            protected CharSequence collectWalletDump() {
-                return application.getWallet().toString(false, true, true, null);
-            }
-        };
-        dialog.show();
     }
 
     @Override
@@ -577,56 +541,6 @@ public final class WalletActivity extends AbstractBindServiceActivity
         };
         passwordView.addTextChangedListener(dialogButtonEnabler);
         fileView.setOnItemSelectedListener(dialogButtonEnabler);
-    }
-
-    private void checkSavedCrashTrace() {
-        if (CrashReporter.hasSavedCrashTrace()) {
-            final StringBuilder stackTrace = new StringBuilder();
-
-            try {
-                CrashReporter.appendSavedCrashTrace(stackTrace);
-            } catch (final IOException x) {
-                log.info("problem appending crash info", x);
-            }
-
-            final ReportIssueDialogBuilder dialog = new ReportIssueDialogBuilder(this,
-                    R.string.report_issue_dialog_title_crash, R.string.report_issue_dialog_message_crash) {
-                @Override
-                protected String subject() {
-                    final PackageInfo packageInfo = getWalletApplication().packageInfo();
-                    return Constants.REPORT_SUBJECT_CRASH + ": " + WalletApplication.versionLine(packageInfo);
-                }
-
-                @Override
-                protected CharSequence collectApplicationInfo() throws IOException {
-                    final StringBuilder applicationInfo = new StringBuilder();
-                    CrashReporter.appendApplicationInfo(applicationInfo, application);
-                    return applicationInfo;
-                }
-
-                @Override
-                protected CharSequence collectStackTrace() throws IOException {
-                    if (stackTrace.length() > 0)
-                        return stackTrace;
-                    else
-                        return null;
-                }
-
-                @Override
-                protected CharSequence collectDeviceInfo() throws IOException {
-                    final StringBuilder deviceInfo = new StringBuilder();
-                    CrashReporter.appendDeviceInfo(deviceInfo, WalletActivity.this);
-                    return deviceInfo;
-                }
-
-                @Override
-                protected CharSequence collectWalletDump() {
-                    return wallet.toString(false, true, true, null);
-                }
-            };
-
-            dialog.show();
-        }
     }
 
     private void restoreWalletFromEncrypted(final File file, final String password) {
