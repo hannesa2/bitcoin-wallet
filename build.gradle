@@ -1,6 +1,7 @@
 buildscript {
     repositories {
         jcenter()
+        google()
     }
 
     dependencies {
@@ -9,6 +10,7 @@ buildscript {
         classpath('fr.avianey.androidsvgdrawable:gradle-plugin:3.0.0') {
             exclude group: 'xerces'
         }
+        classpath 'com.github.triplet.gradle:play-publisher:1.2.0'
     }
 }
 

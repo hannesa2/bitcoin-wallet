@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'androidsvgdrawable'
+apply plugin: 'com.github.triplet.play'
 
 dependencies {
     compile(project(':integration-android')) {
@@ -49,7 +50,7 @@ def getLongGitHash() {
 
 def getGitRepoUrl() {
     def process = "git remote get-url origin --push".execute()
-    return process.text.toString().replace(".git","").trim()
+    return process.text.toString().replace(".git", "").trim()
 }
 
 def getGitCommitUrl() {
@@ -66,7 +67,7 @@ android {
     }
 
     defaultConfig {
-        generatedDensities = ['hdpi', 'xhdpi']
+        vectorDrawables.generatedDensities = ['hdpi', 'xxhdpi']
         versionCode getGitCommitCount()
         versionName versionNr + "." + versionCode + "-" + getLatestGitHash()
         minSdkVersion defaultMinSdkVersion
@@ -76,13 +77,14 @@ android {
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
         buildConfigField "String", "GIT_COMMIT_URL", "\"" + getGitCommitUrl() + "\""
         buildConfigField "String", "GIT_REPO_URL", "\"" + getGitRepoUrl() + "\""
-        buildConfigField "String", "GIT_TAG_URL", "\"" + getGitRepoUrl()+"/tags" + "\""
+        buildConfigField "String", "GIT_TAG_URL", "\"" + getGitRepoUrl() + "/tags" + "\""
+        buildConfigField "String", "CI_BUILD_ID", "\"" + System.getenv("CI_BUILD_ID") + "\""
     }
 
     signingConfigs {
         if (System.getenv("CI_SERVER")) {
             release {
-                println "KEYSTORE_FILE=" + System.getenv('KEYSTORE_FILE')
+                println System.getenv('KEYSTORE_FILE')
                 storeFile rootProject.file(System.getenv('KEYSTORE_FILE'))
                 storePassword System.getenv("KEYSTORE_PASS")
                 keyAlias System.getenv("ALIAS_NAME")
@@ -131,6 +133,12 @@ android {
         exclude 'org.bitcoin.production.checkpoints.txt'
         exclude 'org.bitcoin.test.checkpoints.txt'
     }
+}
+
+play {
+    track = 'alpha'
+    serviceAccountEmail = System.getenv('PLAY_SERVICE_MAIL')
+    pk12File = rootProject.file(System.getenv('PLAY_P12_FILE'))
 }
 
 task svgToPngMipmap(type: fr.avianey.androidsvgdrawable.gradle.SvgDrawableTask) {
