@@ -1,0 +1,32 @@
+before_script:
+  - export PATH=/opt/android-sdk-linux/sdk/platform-tools:$PATH
+  - env
+  - $ANDROID_HOME/tools/bin/sdkmanager --update --channel=3
+
+stages:
+  - build
+  - test
+
+build:
+   script:
+    - ./gradlew clean :wallet:assembleRelease :wallet:publishApkRelease -Dorg.gradle.project.track=alpha
+   stage: build
+   only:
+    - master
+   tags:
+    - android
+   artifacts:
+     paths:
+      - wallet/build/outputs/apk/
+
+release:
+   script:
+     - ./gradlew :wallet:assembleRelease :wallet:publishApkRelease -Dorg.gradle.project.track=beta :wallet:assembleRelease :wallet:publishApkRelease -Dorg.gradle.project.track=beta
+   stage: build
+   only:
+     - tags
+   tags:
+     - android
+   artifacts:
+     paths:
+       - wallet/build/outputs/apk/
