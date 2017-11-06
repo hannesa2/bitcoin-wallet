@@ -68,7 +68,7 @@ public final class AboutFragment extends PreferenceFragment {
         findPreference(KEY_ABOUT_MARKET_APP).setIntent(marketIntent);
         findPreference(KEY_ABOUT_CREDITS_BITCOINJ)
                 .setTitle(getString(R.string.about_credits_bitcoinj_title, VersionMessage.BITCOINJ_VERSION));
-        findPreference(KEY_ABOUT_SOURCE).setSummary(BuildConfig.GIT_REPO_URL);
+        findPreference(KEY_ABOUT_SOURCE).setSummary(BuildConfig.GIT_COMMIT_URL);
         findPreference(KEY_ABOUT_SOURCE).setIntent(repoIntent);
     }
 }
