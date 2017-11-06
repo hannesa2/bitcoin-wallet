@@ -60,7 +60,7 @@ public final class AboutFragment extends PreferenceFragment {
 
         final PackageInfo packageInfo = application.packageInfo();
         findPreference(KEY_ABOUT_VERSION).setSummary(WalletApplication.versionLine(packageInfo));
-        Intent repoIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format(BuildConfig.GIT_REPO_URL, packageInfo.packageName)));
+        Intent repoIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format(BuildConfig.GIT_COMMIT_URL, packageInfo.packageName)));
         Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format(Constants.MARKET_APP_URL, packageInfo.packageName)));
         if (packageManager.resolveActivity(marketIntent, 0) == null) {
             marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format(Constants.WEBMARKET_APP_URL, packageInfo.packageName)));
