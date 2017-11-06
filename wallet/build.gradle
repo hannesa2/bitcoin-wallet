@@ -1,3 +1,5 @@
+import fr.avianey.androidsvgdrawable.gradle.SvgDrawableTask
+
 apply plugin: 'com.android.application'
 apply plugin: 'androidsvgdrawable'
 apply plugin: 'com.github.triplet.play'
@@ -33,27 +35,30 @@ dependencies {
 
 def versionNr = '5'
 
-def getGitCommitCount() {
+static def getGitCommitCount() {
     def process = "git rev-list HEAD --count".execute()
     return process.text.toInteger()
 }
 
-def getLatestGitHash() {
+static def getLatestGitHash() {
     def process = "git rev-parse --short HEAD".execute()
     return process.text.toString().trim()
 }
 
-def getLongGitHash() {
+static def getLongGitHash() {
     def process = "git rev-parse HEAD".execute()
     return process.text.toString().trim()
 }
 
-def getGitRepoUrl() {
-    def process = "git remote get-url origin --push".execute()
-    return process.text.toString().replace(".git", "").trim()
+static def getGitRepoUrl() {
+// Unfortunately to make it work needs an other Gitlab setup. Gitlab check out with internal hostname, not with external.
+// Cert handling with Apache/Ngnix makes it current impossible
+//    def process = "git remote get-url origin --push".execute()
+//    return process.text.toString().replace(".git", "").trim()
+    return "https://git.mxtracks.info/open-source/bitcoin-wallet"
 }
 
-def getGitCommitUrl() {
+static def getGitCommitUrl() {
     return getGitRepoUrl() + "/commit/" + getLongGitHash()
 }
 
@@ -136,12 +141,14 @@ android {
 }
 
 play {
-    track = 'alpha'
-    serviceAccountEmail = System.getenv('PLAY_SERVICE_MAIL')
-    pk12File = rootProject.file(System.getenv('PLAY_P12_FILE'))
+    if (System.getenv("CI_SERVER")) {
+        track = 'alpha'
+        serviceAccountEmail = System.getenv('PLAY_SERVICE_MAIL')
+        pk12File = rootProject.file(System.getenv('PLAY_P12_FILE'))
+    }
 }
 
-task svgToPngMipmap(type: fr.avianey.androidsvgdrawable.gradle.SvgDrawableTask) {
+task svgToPngMipmap(type: SvgDrawableTask) {
     from = files('graphics/mipmap')
     to = file('res')
     targetedDensities = ['hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi']
