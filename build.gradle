@@ -19,7 +19,7 @@ ext {
     defaultTargetSdkVersion = 25
     defaultCompiledkVersion = 26
     defaultBuildToolsVersion = '26.0.2'
-    supportLib = "26.1.0"
+    supportLib = "27.0.0"
 }
 
 allprojects {
