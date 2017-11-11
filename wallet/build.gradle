@@ -50,9 +50,40 @@ static def getLongGitHash() {
     return process.text.toString().trim()
 }
 
-def getGitRepoUrl() {
-    def process = "git remote get-url origin --push".execute()
-    return process.text.toString().replace(".git", "").trim()
+static def getGitRepoUrl() {
+// Unfortunately to make it work needs an other Gitlab setup. Gitlab check out with internal hostname, not with external.
+// Cert handling with Apache/Ngnix makes it current impossible
+    if (System.getenv("CI_SERVER")) {
+        return "https://git.mxtracks.info/open-source/bitcoin-wallet"
+    } else {
+        def process = "git remote get-url origin --push".execute()
+        return process.text.toString().replace(".git", "").trim()
+    }
+}
+
+static def getBuildId() {
+    if (System.getenv("CI_SERVER")) {
+        return System.getenv("CI_BUILD_ID")
+    } else {
+        return System.getenv("TRAVIS_BUILD_ID")
+    }
+}
+
+static def getBuildUrl() {
+    if (System.getenv("CI_SERVER")) {
+        return getBuildId()
+    } else {
+        println "buildID:" + "https://travis-ci.org/" + System.getenv("TRAVIS_REPO_SLUG") + "/builds/" + getBuildId()
+        println "TRAVIS_BUILD_DIR:" + System.getenv("TRAVIS_BUILD_DIR")
+        println "TRAVIS_BUILD_ID:" + System.getenv("TRAVIS_BUILD_ID")
+        println "TRAVIS_BUILD_NUMBER:" + System.getenv("TRAVIS_BUILD_NUMBER")
+        println "TRAVIS_COMMIT:" + System.getenv("TRAVIS_COMMIT")
+        println "TRAVIS_COMMIT_MESSAGE:" + System.getenv("TRAVIS_COMMIT_MESSAGE")
+        println "TRAVIS_COMMIT_RANGE:" + System.getenv("TRAVIS_COMMIT_RANGE")
+        println "TRAVIS_JOB_ID:" + System.getenv("TRAVIS_JOB_ID")
+        println "TRAVIS_JOB_NUMBER:" + System.getenv("TRAVIS_JOB_NUMBER")
+        return "https://travis-ci.org/" + System.getenv("TRAVIS_REPO_SLUG") + "/builds/" + getBuildId()
+    }
 }
 
 static def getGitCommitUrl() {
@@ -80,14 +111,24 @@ android {
         buildConfigField "String", "GIT_COMMIT_URL", "\"" + getGitCommitUrl() + "\""
         buildConfigField "String", "GIT_REPO_URL", "\"" + getGitRepoUrl() + "\""
         buildConfigField "String", "GIT_TAG_URL", "\"" + getGitRepoUrl() + "/tags" + "\""
-        buildConfigField "String", "CI_BUILD_ID", "\"" + System.getenv("CI_BUILD_ID") + "\""
+        buildConfigField "String", "CI_BUILD_ID", "\"" + getBuildId() + "\""
+        buildConfigField "String", "CI_BUILD_URL", "\"" + getBuildUrl() + "\""
+
+        println "BuildUrl: " + getBuildUrl()
     }
 
     signingConfigs {
-        if (System.getenv("CI_SERVER")) {
+        if (System.getenv("CI_SERVER")) { // gitlab
             release {
                 println System.getenv('KEYSTORE_FILE')
                 storeFile rootProject.file(System.getenv('KEYSTORE_FILE'))
+                storePassword System.getenv("KEYSTORE_PASS")
+                keyAlias System.getenv("ALIAS_NAME")
+                keyPassword System.getenv("ALIAS_PASS")
+            }
+        } else if (System.getenv("TRAVIS")) {
+            release {
+                storeFile file('../travis/release.keystore')
                 storePassword System.getenv("KEYSTORE_PASS")
                 keyAlias System.getenv("ALIAS_NAME")
                 keyPassword System.getenv("ALIAS_PASS")
@@ -100,6 +141,8 @@ android {
             minifyEnabled true
             proguardFile 'proguard.cfg'
             if (System.getenv("CI_SERVER")) {
+                signingConfig signingConfigs.release
+            } else if (System.getenv("TRAVIS")) {
                 signingConfig signingConfigs.release
             }
         }
@@ -138,12 +181,21 @@ android {
 }
 
 play {
+    track = 'alpha'
+    serviceAccountEmail = System.getenv('PLAY_SERVICE_MAIL')
     if (System.getenv("CI_SERVER")) {
-        track = 'alpha'
-        serviceAccountEmail = System.getenv('PLAY_SERVICE_MAIL')
+        println "I run on Gitlab"
         pk12File = rootProject.file(System.getenv('PLAY_P12_FILE'))
+    } else if (System.getenv("TRAVIS")) {
+        println "I run on Travis"
+        pk12File = rootProject.file("./travis/GooglePlay.p12")
     }
 }
+
+task decrypt(type: Exec, dependsOn: 'build') {
+    commandLine "./travis/decrypt.sh".split(' ')
+}
+
 
 task svgToPngMipmap(type: SvgDrawableTask) {
     from = files('graphics/mipmap')
