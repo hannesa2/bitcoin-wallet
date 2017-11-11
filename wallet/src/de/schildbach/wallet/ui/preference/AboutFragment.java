@@ -41,6 +41,7 @@ public final class AboutFragment extends PreferenceFragment {
 
     private static final String KEY_ABOUT_VERSION          = "about_version";
     private static final String KEY_ABOUT_SOURCE           = "about_source";
+    private static final String KEY_ABOUT_CI               = "about_ci";
     private static final String KEY_ABOUT_MARKET_APP       = "about_market_app";
     private static final String KEY_ABOUT_CREDITS_BITCOINJ = "about_credits_bitcoinj";
 
@@ -61,6 +62,7 @@ public final class AboutFragment extends PreferenceFragment {
         final PackageInfo packageInfo = application.packageInfo();
         findPreference(KEY_ABOUT_VERSION).setSummary(WalletApplication.versionLine(packageInfo));
         Intent repoIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format(BuildConfig.GIT_COMMIT_URL, packageInfo.packageName)));
+        Intent ciIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format(BuildConfig.CI_BUILD_URL, packageInfo.packageName)));
         Intent marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format(Constants.MARKET_APP_URL, packageInfo.packageName)));
         if (packageManager.resolveActivity(marketIntent, 0) == null) {
             marketIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(String.format(Constants.WEBMARKET_APP_URL, packageInfo.packageName)));
@@ -70,5 +72,7 @@ public final class AboutFragment extends PreferenceFragment {
                 .setTitle(getString(R.string.about_credits_bitcoinj_title, VersionMessage.BITCOINJ_VERSION));
         findPreference(KEY_ABOUT_SOURCE).setSummary(BuildConfig.GIT_COMMIT_URL);
         findPreference(KEY_ABOUT_SOURCE).setIntent(repoIntent);
+        findPreference(KEY_ABOUT_CI).setSummary(BuildConfig.CI_BUILD_URL);
+        findPreference(KEY_ABOUT_CI).setIntent(ciIntent);
     }
 }
