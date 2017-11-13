@@ -38,12 +38,19 @@ before_install:
 install:
   - ./travis/decrypt.sh
 
+addons:
+  apt:
+    packages:
+    - python2.7
+
 script:
   - ./travis/decrypt.sh
   - ./gradlew clean :wallet:assembleRelease :wallet:publishApkRelease -Dorg.gradle.project.track=alpha
 
 after_script:
   - ./travis/cleanup.sh
+
+after_success: ./travis_upload_release_to_github.py
 
 notifications:
   email:
