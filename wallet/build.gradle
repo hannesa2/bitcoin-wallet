@@ -53,11 +53,6 @@ static def getLatestGitHash() {
     return process.text.toString().trim()
 }
 
-static def getLongGitHash() {
-    def process = "git rev-parse HEAD".execute()
-    return process.text.toString().trim()
-}
-
 static def getGitRepoUrl() {
 // Unfortunately to make it work needs an other Gitlab setup. Gitlab check out with internal hostname, not with external.
 // Cert handling with Apache/Ngnix makes it current impossible
@@ -95,7 +90,7 @@ static def getBuildUrl() {
 }
 
 static def getGitCommitUrl() {
-    return getGitRepoUrl() + "/commit/" + getLongGitHash()
+    return getGitRepoUrl() + "/commit/" + getLatestGitHash()
 }
 
 android {
