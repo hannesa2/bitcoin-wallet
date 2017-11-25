@@ -5,8 +5,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0'
-        classpath 'com.android.tools.build:gradle-experimental:0.11.0'
+        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath 'com.android.tools.build:gradle-experimental:0.11.1'
         classpath('fr.avianey.androidsvgdrawable:gradle-plugin:3.0.0') {
             exclude group: 'xerces'
         }
@@ -18,7 +18,7 @@ ext {
     defaultMinSdkVersion = 21
     defaultTargetSdkVersion = 25
     defaultCompiledkVersion = 26
-    defaultBuildToolsVersion = '26.0.2'
+    defaultBuildToolsVersion = '27.0.1'
     supportLib = "27.0.1"
 }
 
