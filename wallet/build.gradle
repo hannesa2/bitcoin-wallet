@@ -85,6 +85,15 @@ static def getGitCommitUrl() {
     return getGitRepoUrl() + "/commit/" + getLatestGitHash()
 }
 
+static def getUpstreamGitHash() {
+    def process = "git rev-parse --short @{-1}".execute()
+    return process.text.toString().trim()
+}
+
+static def getUpstreamGitCommitUrl() {
+    return "https://github.com/bitcoin-wallet/bitcoin-wallet/commit/" + getUpstreamGitHash()
+}
+
 android {
     compileSdkVersion defaultCompiledkVersion
     buildToolsVersion defaultBuildToolsVersion
@@ -104,6 +113,7 @@ android {
         multiDexEnabled true
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
         buildConfigField "String", "GIT_COMMIT_URL", "\"" + getGitCommitUrl() + "\""
+        buildConfigField "String", "GIT_UPSTREAM_COMMIT_URL", "\"" + getUpstreamGitCommitUrl() + "\""
         buildConfigField "String", "GIT_REPO_URL", "\"" + getGitRepoUrl() + "\""
         buildConfigField "String", "GIT_TAG_URL", "\"" + getGitRepoUrl() + "/tags" + "\""
         buildConfigField "String", "CI_BUILD_ID", "\"" + getBuildId() + "\""

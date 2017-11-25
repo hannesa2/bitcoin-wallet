@@ -27,6 +27,11 @@ git:
 before_install:
   - git clone https://github.com/urho3d/android-ndk.git $HOME/android-ndk-root
   - export ANDROID_NDK_HOME=$HOME/android-ndk-root
+  - git remote add upstream https://github.com/bitcoin-wallet/bitcoin-wallet
+  - git fetch upstream
+  - git checkout upstream/prod
+  - git checkout -b prod
+  - git checkout master
   - ./travis/decrypt.sh
 
 script:
