@@ -36,7 +36,7 @@
     <PreferenceCategory android:title="@string/about_category_credits" >
         <Preference
             android:key="about_upstream"
-	        android:title="based on git upstream repo"
+	        android:title="@string/about_upstream_title"
             android:summary="https://github.com/bitcoin-wallet/bitcoin-wallet" >
             <intent
                 android:action="android.intent.action.VIEW"
