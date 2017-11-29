@@ -74,6 +74,7 @@ public final class AboutFragment extends PreferenceFragment {
                 .setTitle(getString(R.string.about_credits_bitcoinj_title, VersionMessage.BITCOINJ_VERSION));
         findPreference(KEY_ABOUT_SOURCE).setSummary(BuildConfig.GIT_COMMIT_URL);
         findPreference(KEY_ABOUT_UPSTREAM).setSummary(BuildConfig.GIT_UPSTREAM_COMMIT_URL);
+        findPreference(KEY_ABOUT_UPSTREAM).setTitle((getString(R.string.about_upstream_title, BuildConfig.GIT_UPSTREAM_TAG)));
         findPreference(KEY_ABOUT_SOURCE).setIntent(repoIntent);
         findPreference(KEY_ABOUT_UPSTREAM).setIntent(repoUpstreamIntent);
         findPreference(KEY_ABOUT_CI).setSummary(BuildConfig.CI_BUILD_URL);
