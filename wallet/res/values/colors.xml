@@ -8,7 +8,7 @@
     <color name="fg_value_positive">#ff008000</color>
     <color name="fg_value_negative">#ff990000</color>
     <color name="fg_error">#ffff0000</color>
-    <color name="fg_network_significant">#ffffcc99</color>
+    <color name="fg_network_significant">#ff3581FC</color>
     <color name="fg_network_insignificant">#ffddaa77</color>
     <color name="fg_shortcut">#ffddaa77</color>
 
