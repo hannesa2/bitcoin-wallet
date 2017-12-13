@@ -42,33 +42,34 @@ public class Configuration {
     public final int lastVersionCode;
 
     private final SharedPreferences prefs;
-    private final Resources res;
+    private final Resources         res;
 
-    public static final String PREFS_KEY_BTC_PRECISION = "btc_precision";
-    public static final String PREFS_KEY_OWN_NAME = "own_name";
-    public static final String PREFS_KEY_SEND_COINS_AUTOCLOSE = "send_coins_autoclose";
+    public static final String PREFS_KEY_BTC_PRECISION             = "btc_precision";
+    public static final String PREFS_KEY_OWN_NAME                  = "own_name";
+    public static final String PREFS_KEY_SEND_COINS_AUTOCLOSE      = "send_coins_autoclose";
     public static final String PREFS_KEY_CONNECTIVITY_NOTIFICATION = "connectivity_notification";
-    public static final String PREFS_KEY_EXCHANGE_CURRENCY = "exchange_currency";
-    public static final String PREFS_KEY_TRUSTED_PEER = "trusted_peer";
-    public static final String PREFS_KEY_TRUSTED_PEER_ONLY = "trusted_peer_only";
-    public static final String PREFS_KEY_BLOCK_EXPLORER = "block_explorer";
-    public static final String PREFS_KEY_DATA_USAGE = "data_usage";
-    public static final String PREFS_KEY_REMIND_BALANCE = "remind_balance";
-    public static final String PREFS_KEY_DISCLAIMER = "disclaimer";
+    public static final String PREFS_KEY_WIFI_ONLY                 = "PREFS_KEY_WIFI_ONLY";
+    public static final String PREFS_KEY_EXCHANGE_CURRENCY         = "exchange_currency";
+    public static final String PREFS_KEY_TRUSTED_PEER              = "trusted_peer";
+    public static final String PREFS_KEY_TRUSTED_PEER_ONLY         = "trusted_peer_only";
+    public static final String PREFS_KEY_BLOCK_EXPLORER            = "block_explorer";
+    public static final String PREFS_KEY_DATA_USAGE                = "data_usage";
+    public static final String PREFS_KEY_REMIND_BALANCE            = "remind_balance";
+    public static final String PREFS_KEY_DISCLAIMER                = "disclaimer";
 
-    private static final String PREFS_KEY_LAST_VERSION = "last_version";
-    private static final String PREFS_KEY_LAST_USED = "last_used";
-    private static final String PREFS_KEY_BEST_CHAIN_HEIGHT_EVER = "best_chain_height_ever";
-    private static final String PREFS_KEY_CACHED_EXCHANGE_CURRENCY = "cached_exchange_currency";
+    private static final String PREFS_KEY_LAST_VERSION              = "last_version";
+    private static final String PREFS_KEY_LAST_USED                 = "last_used";
+    private static final String PREFS_KEY_BEST_CHAIN_HEIGHT_EVER    = "best_chain_height_ever";
+    private static final String PREFS_KEY_CACHED_EXCHANGE_CURRENCY  = "cached_exchange_currency";
     private static final String PREFS_KEY_CACHED_EXCHANGE_RATE_COIN = "cached_exchange_rate_coin";
     private static final String PREFS_KEY_CACHED_EXCHANGE_RATE_FIAT = "cached_exchange_rate_fiat";
-    private static final String PREFS_KEY_LAST_EXCHANGE_DIRECTION = "last_exchange_direction";
-    private static final String PREFS_KEY_CHANGE_LOG_VERSION = "change_log_version";
-    public static final String PREFS_KEY_REMIND_BACKUP = "remind_backup";
-    private static final String PREFS_KEY_LAST_BACKUP = "last_backup";
-    private static final String PREFS_KEY_LAST_BLUETOOTH_ADDRESS = "last_bluetooth_address";
+    private static final String PREFS_KEY_LAST_EXCHANGE_DIRECTION   = "last_exchange_direction";
+    private static final String PREFS_KEY_CHANGE_LOG_VERSION        = "change_log_version";
+    public static final  String PREFS_KEY_REMIND_BACKUP             = "remind_backup";
+    private static final String PREFS_KEY_LAST_BACKUP               = "last_backup";
+    private static final String PREFS_KEY_LAST_BLUETOOTH_ADDRESS    = "last_bluetooth_address";
 
-    private static final int PREFS_DEFAULT_BTC_SHIFT = 3;
+    private static final int PREFS_DEFAULT_BTC_SHIFT     = 3;
     private static final int PREFS_DEFAULT_BTC_PRECISION = 2;
 
     private static final Logger log = LoggerFactory.getLogger(Configuration.class);
@@ -136,6 +137,14 @@ public class Configuration {
 
     public boolean getConnectivityNotificationEnabled() {
         return prefs.getBoolean(PREFS_KEY_CONNECTIVITY_NOTIFICATION, false);
+    }
+
+    public boolean isPeerWifiOnly() {
+        return prefs.getBoolean(PREFS_KEY_WIFI_ONLY, true);
+    }
+
+    public void setPeerWifiOnly(boolean value) {
+        prefs.edit().putBoolean(PREFS_KEY_WIFI_ONLY, value).apply();
     }
 
     public String getTrustedPeerHost() {

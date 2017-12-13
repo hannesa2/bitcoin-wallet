@@ -17,38 +17,6 @@
 
 package de.schildbach.wallet;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.time.Clock;
-import java.util.concurrent.TimeUnit;
-
-import org.bitcoinj.core.Transaction;
-import org.bitcoinj.core.VerificationException;
-import org.bitcoinj.core.VersionMessage;
-import org.bitcoinj.crypto.LinuxSecureRandom;
-import org.bitcoinj.crypto.MnemonicCode;
-import org.bitcoinj.utils.Threading;
-import org.bitcoinj.wallet.Protos;
-import org.bitcoinj.wallet.UnreadableWalletException;
-import org.bitcoinj.wallet.Wallet;
-import org.bitcoinj.wallet.WalletProtobufSerializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Splitter;
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.ImmutableList;
-
-import de.schildbach.wallet.service.BlockchainService;
-import de.schildbach.wallet.service.BlockchainServiceImpl;
-import de.schildbach.wallet.util.Bluetooth;
-import de.schildbach.wallet.BuildConfig;
-import de.schildbach.wallet.R;
-
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.Application;
@@ -69,6 +37,32 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateUtils;
 import android.widget.Toast;
+
+import com.google.common.base.Splitter;
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableList;
+
+import org.bitcoinj.core.Transaction;
+import org.bitcoinj.core.VerificationException;
+import org.bitcoinj.core.VersionMessage;
+import org.bitcoinj.crypto.LinuxSecureRandom;
+import org.bitcoinj.crypto.MnemonicCode;
+import org.bitcoinj.utils.Threading;
+import org.bitcoinj.wallet.Protos;
+import org.bitcoinj.wallet.UnreadableWalletException;
+import org.bitcoinj.wallet.Wallet;
+import org.bitcoinj.wallet.WalletProtobufSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.concurrent.TimeUnit;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.android.LogcatAppender;
@@ -76,20 +70,23 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
+import de.schildbach.wallet.service.BlockchainService;
+import de.schildbach.wallet.service.BlockchainServiceImpl;
+import de.schildbach.wallet.util.Bluetooth;
 
 /**
  * @author Andreas Schildbach
  */
 public class WalletApplication extends Application {
-    private Configuration config;
+    private Configuration   config;
     private ActivityManager activityManager;
 
     private Intent blockchainServiceIntent;
     private Intent blockchainServiceCancelCoinsReceivedIntent;
     private Intent blockchainServiceResetBlockchainIntent;
 
-    private File walletFile;
-    private Wallet wallet;
+    private File        walletFile;
+    private Wallet      wallet;
     private PackageInfo packageInfo;
 
     public static final String ACTION_WALLET_REFERENCE_CHANGED = WalletApplication.class.getPackage().getName()
@@ -415,9 +412,18 @@ public class WalletApplication extends Application {
 
     public void startBlockchainService(final boolean cancelCoinsReceived) {
         if (cancelCoinsReceived)
-            startService(blockchainServiceCancelCoinsReceivedIntent);
-        else
-            startService(blockchainServiceIntent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(blockchainServiceCancelCoinsReceivedIntent);
+            } else {
+                startService(blockchainServiceCancelCoinsReceivedIntent);
+            }
+        else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(blockchainServiceIntent);
+            } else {
+                startService(blockchainServiceIntent);
+            }
+        }
     }
 
     public void stopBlockchainService() {
@@ -453,7 +459,15 @@ public class WalletApplication extends Application {
         final Intent intent = new Intent(BlockchainService.ACTION_BROADCAST_TRANSACTION, null, this,
                 BlockchainServiceImpl.class);
         intent.putExtra(BlockchainService.ACTION_BROADCAST_TRANSACTION_HASH, tx.getHash().getBytes());
-        startService(intent);
+
+        final Configuration config = new Configuration(PreferenceManager.getDefaultSharedPreferences(this), getResources());
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
+        }
     }
 
     public static PackageInfo packageInfoFromContext(final Context context) {
