@@ -17,23 +17,30 @@
 
 package de.schildbach.wallet.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
+import android.annotation.SuppressLint;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.ComponentCallbacks2;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Binder;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
+import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
+import android.text.format.DateUtils;
 
-import javax.annotation.Nullable;
+import com.google.common.base.Stopwatch;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Block;
@@ -63,74 +70,73 @@ import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Stopwatch;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.annotation.Nullable;
 
 import de.schildbach.wallet.Configuration;
 import de.schildbach.wallet.Constants;
+import de.schildbach.wallet.R;
 import de.schildbach.wallet.WalletApplication;
 import de.schildbach.wallet.WalletBalanceWidgetProvider;
 import de.schildbach.wallet.data.AddressBookProvider;
 import de.schildbach.wallet.service.BlockchainState.Impediment;
 import de.schildbach.wallet.ui.WalletActivity;
+import de.schildbach.wallet.util.NetworkHelper;
 import de.schildbach.wallet.util.ThrottlingWalletChangeListener;
 import de.schildbach.wallet.util.WalletUtils;
-import de.schildbach.wallet.R;
-
-import android.annotation.SuppressLint;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.ComponentCallbacks2;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.Uri;
-import android.os.Binder;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.text.format.DateUtils;
 
 /**
  * @author Andreas Schildbach
  */
 public class BlockchainServiceImpl extends android.app.Service implements BlockchainService {
+
+    private static final String WIFI_ONLY_ACTION = "de.schildbach.wallet.service.WIFI_ONLY_ACTION";
+    private static final String CELLULAR_ACTION  = "de.schildbach.wallet.service.CELLULAR_ACTION";
+
     private WalletApplication application;
-    private Configuration config;
+    private Configuration     config;
 
     private BlockStore blockStore;
-    private File blockChainFile;
+    private File       blockChainFile;
     private BlockChain blockChain;
     @Nullable
-    private PeerGroup peerGroup;
+    private PeerGroup  peerGroup;
 
-    private final Handler handler = new Handler();
+    private final Handler handler      = new Handler();
     private final Handler delayHandler = new Handler();
     private WakeLock wakeLock;
 
     private PeerConnectivityListener peerConnectivityListener;
-    private NotificationManager nm;
-    private ConnectivityManager connectivityManager;
-    private final Set<Impediment> impediments = EnumSet.noneOf(Impediment.class);
-    private int notificationCount = 0;
-    private Coin notificationAccumulatedAmount = Coin.ZERO;
-    private final List<Address> notificationAddresses = new LinkedList<Address>();
-    private AtomicInteger transactionsReceived = new AtomicInteger();
+    private NotificationManager      nm;
+    private ConnectivityManager      connectivityManager;
+    private final Set<Impediment> impediments                   = EnumSet.noneOf(Impediment.class);
+    private       int             notificationCount             = 0;
+    private       Coin            notificationAccumulatedAmount = Coin.ZERO;
+    private final List<Address>   notificationAddresses         = new LinkedList<Address>();
+    private       AtomicInteger   transactionsReceived          = new AtomicInteger();
     private long serviceCreatedAt;
     private boolean resetBlockchainOnShutdown = false;
 
-    private static final int MIN_COLLECT_HISTORY = 2;
-    private static final int IDLE_BLOCK_TIMEOUT_MIN = 2;
-    private static final int IDLE_TRANSACTION_TIMEOUT_MIN = 9;
-    private static final int MAX_HISTORY_SIZE = Math.max(IDLE_TRANSACTION_TIMEOUT_MIN, IDLE_BLOCK_TIMEOUT_MIN);
-    private static final long APPWIDGET_THROTTLE_MS = DateUtils.SECOND_IN_MILLIS;
+    private static final int  MIN_COLLECT_HISTORY                    = 2;
+    private static final int  IDLE_BLOCK_TIMEOUT_MIN                 = 2;
+    private static final int  IDLE_TRANSACTION_TIMEOUT_MIN           = 9;
+    private static final int  MAX_HISTORY_SIZE                       = Math.max(IDLE_TRANSACTION_TIMEOUT_MIN, IDLE_BLOCK_TIMEOUT_MIN);
+    private static final long APPWIDGET_THROTTLE_MS                  = DateUtils.SECOND_IN_MILLIS;
     private static final long BLOCKCHAIN_STATE_BROADCAST_THROTTLE_MS = DateUtils.SECOND_IN_MILLIS;
 
     private static final Logger log = LoggerFactory.getLogger(BlockchainServiceImpl.class);
@@ -266,7 +272,7 @@ public class BlockchainServiceImpl extends android.app.Service implements Blockc
 
         @Override
         public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
-            if (Configuration.PREFS_KEY_CONNECTIVITY_NOTIFICATION.equals(key))
+            if (Configuration.PREFS_KEY_CONNECTIVITY_NOTIFICATION.equals(key) || Configuration.PREFS_KEY_WIFI_ONLY.equals(key))
                 changed(peerCount);
         }
 
@@ -277,20 +283,42 @@ public class BlockchainServiceImpl extends android.app.Service implements Blockc
             handler.post(new Runnable() {
                 @Override
                 public void run() {
+
+                    Intent wifiIntent = getActionIntent();
+                    wifiIntent.setAction(WIFI_ONLY_ACTION);
+
+                    Intent cellularIntent = getActionIntent();
+                    cellularIntent.setAction(CELLULAR_ACTION);
+
                     final boolean connectivityNotificationEnabled = config.getConnectivityNotificationEnabled();
 
                     if (!connectivityNotificationEnabled || numPeers == 0) {
                         stopForeground(true);
                     } else {
+                        final Configuration config = new Configuration(PreferenceManager.getDefaultSharedPreferences(BlockchainServiceImpl.this),
+                                BlockchainServiceImpl.this.getResources());
+
                         final NotificationCompat.Builder notification = new NotificationCompat.Builder(
                                 BlockchainServiceImpl.this, Constants.NOTIFICATION_CHANNEL_ID_ONGOING);
                         notification.setSmallIcon(R.drawable.stat_notify_peers, Math.min(numPeers, 4));
-                        notification.setContentTitle(getString(R.string.app_name));
+                        notification.setContentTitle(getString(R.string.app_name) + " [" +
+                                (config.isPeerWifiOnly() ? "Wifi only" : "GSM") + "]"
+                        );
                         notification.setContentText(getString(R.string.notification_peers_connected_msg, numPeers));
                         notification.setContentIntent(PendingIntent.getActivity(BlockchainServiceImpl.this, 0,
                                 new Intent(BlockchainServiceImpl.this, WalletActivity.class), 0));
                         notification.setWhen(System.currentTimeMillis());
                         notification.setOngoing(true);
+                        NotificationCompat.Action actionW = new NotificationCompat.Action.Builder(R.drawable.ic_cellphone_wireless, "run with GSM too",
+                                PendingIntent.getService(BlockchainServiceImpl.this, 0, cellularIntent, PendingIntent.FLAG_UPDATE_CURRENT)).build();
+                        NotificationCompat.Action actionG = new NotificationCompat.Action.Builder(R.drawable.ic_wifi, "run Wifi only",
+                                PendingIntent.getService(BlockchainServiceImpl.this, 0, wifiIntent, PendingIntent.FLAG_UPDATE_CURRENT)).build();
+
+                        if (config.isPeerWifiOnly())
+                            notification.addAction(actionW);
+                        else {
+                            notification.addAction(actionG);
+                        }
                         startForeground(Constants.NOTIFICATION_ID_CONNECTED, notification.build());
                     }
 
@@ -639,6 +667,8 @@ public class BlockchainServiceImpl extends android.app.Service implements Blockc
             log.info("service start command: " + intent + (intent.hasExtra(Intent.EXTRA_ALARM_COUNT)
                     ? " (alarm count: " + intent.getIntExtra(Intent.EXTRA_ALARM_COUNT, 0) + ")" : ""));
 
+            processIntentAction(intent);
+
             final String action = intent.getAction();
 
             if (BlockchainService.ACTION_CANCEL_COINS_RECEIVED.equals(action)) {
@@ -787,4 +817,24 @@ public class BlockchainServiceImpl extends android.app.Service implements Blockc
         getBlockchainState().putExtras(broadcast);
         LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
     }
+
+    private Intent getActionIntent() {
+        Intent intent = new Intent(this, BlockchainServiceImpl.class);
+        return intent;
+    }
+
+    private void processIntentAction(Intent intent) {
+        if (intent != null && intent.getAction() != null) {
+            final Configuration config = new Configuration(PreferenceManager.getDefaultSharedPreferences(this), this.getResources());
+            switch (intent.getAction()) {
+                case WIFI_ONLY_ACTION:
+                    config.setPeerWifiOnly(true);
+                    break;
+                case CELLULAR_ACTION:
+                    config.setPeerWifiOnly(false);
+                    break;
+            }
+        }
+    }
+
 }

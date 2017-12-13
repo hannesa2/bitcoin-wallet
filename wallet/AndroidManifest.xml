@@ -222,6 +222,9 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name="de.schildbach.wallet.service.WlanReceiver">
+        </receiver>
+
         <service
             android:name="de.schildbach.wallet.service.UpgradeWalletService"
             android:exported="false" />

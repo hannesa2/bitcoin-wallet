@@ -18,7 +18,7 @@ ext {
     defaultMinSdkVersion = 21
     defaultTargetSdkVersion = 25
     defaultCompiledkVersion = 26
-    defaultBuildToolsVersion = '27.0.1'
+    defaultBuildToolsVersion = '27.0.2'
     supportLib = "27.0.1"
 }
 
