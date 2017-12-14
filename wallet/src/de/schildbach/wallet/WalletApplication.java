@@ -34,6 +34,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateUtils;
 import android.widget.Toast;
@@ -412,17 +413,9 @@ public class WalletApplication extends Application {
 
     public void startBlockchainService(final boolean cancelCoinsReceived) {
         if (cancelCoinsReceived)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(blockchainServiceCancelCoinsReceivedIntent);
-            } else {
-                startService(blockchainServiceCancelCoinsReceivedIntent);
-            }
+            ContextCompat.startForegroundService(this, blockchainServiceCancelCoinsReceivedIntent);
         else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(blockchainServiceIntent);
-            } else {
-                startService(blockchainServiceIntent);
-            }
+            ContextCompat.startForegroundService(this, blockchainServiceIntent);
         }
     }
 
@@ -462,12 +455,7 @@ public class WalletApplication extends Application {
 
         final Configuration config = new Configuration(PreferenceManager.getDefaultSharedPreferences(this), getResources());
 
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent);
-        } else {
-            startService(intent);
-        }
+        ContextCompat.startForegroundService(this, intent);
     }
 
     public static PackageInfo packageInfoFromContext(final Context context) {
