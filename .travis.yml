@@ -22,19 +22,22 @@ android:
 
 branches:
   only:
-  - master
+  - ndk
 
 git:
   depth: 9999999
 
+install:
+  - echo y | sdkmanager 'ndk-bundle'
+  - echo y | sdkmanager 'cmake;3.6.4111459'
+  - echo y | sdkmanager 'lldb;3.0'
+
 before_install:
-  - git clone https://github.com/urho3d/android-ndk.git $HOME/android-ndk-root
-  - export ANDROID_NDK_HOME=$HOME/android-ndk-root
   - git remote add upstream https://github.com/bitcoin-wallet/bitcoin-wallet
   - git fetch upstream
   - git checkout upstream/prod
   - git checkout -b prod
-  - git checkout master
+  - git checkout ndk
   - ./travis/decrypt.sh
 
 script:
