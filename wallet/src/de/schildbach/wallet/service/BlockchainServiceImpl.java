@@ -595,6 +595,15 @@ public class BlockchainServiceImpl extends android.app.Service implements Blockc
 
         super.onCreate();
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            final NotificationCompat.Builder notification = new NotificationCompat.Builder(this,
+                    Constants.NOTIFICATION_CHANNEL_ID_ONGOING);
+            notification.setSmallIcon(R.drawable.stat_notify_received_24dp);
+            notification.setWhen(System.currentTimeMillis());
+            notification.setOngoing(true);
+            startForeground(Constants.NOTIFICATION_ID_CONNECTED, notification.build());
+        }
+
         nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -660,15 +669,6 @@ public class BlockchainServiceImpl extends android.app.Service implements Blockc
         application.getWallet().addChangeEventListener(Threading.SAME_THREAD, walletEventListener);
 
         registerReceiver(tickReceiver, new IntentFilter(Intent.ACTION_TIME_TICK));
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            final NotificationCompat.Builder notification = new NotificationCompat.Builder(this,
-                    Constants.NOTIFICATION_CHANNEL_ID_ONGOING);
-            notification.setSmallIcon(R.drawable.stat_notify_received_24dp);
-            notification.setWhen(System.currentTimeMillis());
-            notification.setOngoing(true);
-            startForeground(Constants.NOTIFICATION_ID_CONNECTED, notification.build());
-        }
     }
 
     @Override
