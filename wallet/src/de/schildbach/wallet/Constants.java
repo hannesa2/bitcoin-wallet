@@ -136,7 +136,7 @@ public final class Constants {
 
     /** Donation address for tip/donate action. */
     public static final String DONATION_ADDRESS = NETWORK_PARAMETERS.getId().equals(NetworkParameters.ID_MAINNET)
-            ? "159j3V2UNAyDiUUSxSJES2h9nPPoLdrXn5" : null;
+            ? "14BX5hcxAaX6nWenZrXFbmWU7Jsan4m9y3" : null;
 
     /** Recipient e-mail address for reports. */
     public static final String REPORT_EMAIL = "hashengineeringsolutions@gmail.com";
