@@ -297,7 +297,7 @@
   <string name="about_license_title">ライセンス</string>
   <string name="about_source_title">ソースコード</string>
   <string name="about_category_credits">このアプリは以下のソフトウェアを利用しています。</string>
-  <string name="about_credits_bitcoinj_title">Bitcoinプロトコルの実装、bitcoinj %s</string>
+  <string name="about_credits_bitcoinj_title">Bitcoinプロトコルの実装、bitcoinj-cash %s</string>
   <string name="about_credits_zxing_title">QRコード処理ライブラリ、ZXing</string>
   <string name="about_credits_scrypt_title">Will GlozerとColin Percivalによって実装されたScrypt</string>
   <string name="about_market_app_title">Google Playのページ</string>

@@ -294,7 +294,7 @@
   <string name="about_license_title">Лицензия</string>
   <string name="about_source_title">Исходный код</string>
   <string name="about_category_credits">Это приложение использует…</string>
-  <string name="about_credits_bitcoinj_title">bitcoinj %s, реализация протокола Bitcoin</string>
+  <string name="about_credits_bitcoinj_title">bitcoinj-cash %s, реализация протокола Bitcoin</string>
   <string name="about_credits_zxing_title">ZXing, библиотека обработки QR-кодов</string>
   <string name="about_credits_scrypt_title">Scrypt, реализованный Will Glozer и Colin Percival</string>
   <string name="about_market_app_title">Страница Google Play</string>

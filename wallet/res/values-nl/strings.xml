@@ -296,7 +296,7 @@
   <string name="about_license_title">Licentie</string>
   <string name="about_source_title">Broncode</string>
   <string name="about_category_credits">Deze app gebruikt…</string>
-  <string name="about_credits_bitcoinj_title">bitcoinj %s, een Bitcoin protocol implementatie</string>
+  <string name="about_credits_bitcoinj_title">bitcoinj-cash %s, een Bitcoin protocol implementatie</string>
   <string name="about_credits_zxing_title">ZXing, een QR-code processing bibliotheek</string>
   <string name="about_credits_scrypt_title">Scrypt, geïmplementeerd door Will Glozer en Colin Percival</string>
   <string name="about_market_app_title">Google Play Pagina</string>

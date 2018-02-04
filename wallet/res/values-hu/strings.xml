@@ -275,7 +275,7 @@
   <string name="about_copyright_title">Szerzői jog</string>
   <string name="about_license_title">Licensz</string>
   <string name="about_source_title">Forráskód</string>
-  <string name="about_credits_bitcoinj_title">Az applikáció bitcoinj %s-t használ</string>
+  <string name="about_credits_bitcoinj_title">Az applikáció bitcoinj-cash %s-t használ</string>
   <string name="about_credits_zxing_title">ZXing, egy QR-kód feldolgozó könyvtár</string>
   <string name="about_community_googleplus_title">Google+ közösség</string>
   <string name="about_community_googleplus_summary">Fórumok az applikációról</string>

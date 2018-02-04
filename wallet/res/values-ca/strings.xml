@@ -287,7 +287,7 @@
   <string name="about_license_title">Llicència</string>
   <string name="about_source_title">Codi font</string>
   <string name="about_category_credits">Aquesta aplicació utilitza…</string>
-  <string name="about_credits_bitcoinj_title">bitcoinj %s</string>
+  <string name="about_credits_bitcoinj_title">bitcoinj-cash %s</string>
   <string name="about_credits_zxing_title">ZXing</string>
   <string name="about_credits_scrypt_title">Scrypt, implementat per Will Glozer i Colin Percival</string>
   <string name="about_market_app_title">Pàgina de Google Play</string>

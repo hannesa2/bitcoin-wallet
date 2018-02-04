@@ -296,7 +296,7 @@
   <string name="about_license_title">Licence</string>
   <string name="about_source_title">Code source</string>
   <string name="about_category_credits">Cette appli utilise…</string>
-  <string name="about_credits_bitcoinj_title">bitcoinj %s, une application du protocole Bitcoin</string>
+  <string name="about_credits_bitcoinj_title">bitcoinj-cash %s, une application du protocole Bitcoin</string>
   <string name="about_credits_zxing_title">ZXing, un bibliothèque de traitement de codes QR</string>
   <string name="about_credits_scrypt_title">Scrypt, implémenté par Will Glozer et Colin Percival</string>
   <string name="about_market_app_title">Page Google Play</string>
