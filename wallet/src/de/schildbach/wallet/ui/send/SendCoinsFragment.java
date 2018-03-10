@@ -29,6 +29,8 @@ import javax.annotation.Nullable;
 import org.bitcoin.protocols.payments.Protos.Payment;
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.CashAddress;
+import org.bitcoinj.core.CashAddressFactory;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.InsufficientMoneyException;
 import org.bitcoinj.core.Sha256Hash;
@@ -844,7 +846,22 @@ public final class SendCoinsFragment extends Fragment {
                 log.info("Locked to valid address: {}", validatedAddress);
             }
         } catch (final AddressFormatException x) {
-            // swallow
+
+            try {
+
+                final String addressStr = receivingAddressView.getText().toString().trim();
+                CashAddress cashAddr = CashAddressFactory.create().getFromFormattedAddress(Constants.NETWORK_PARAMETERS, addressStr);
+                if (!addressStr.isEmpty()
+                        && Constants.NETWORK_PARAMETERS.equals(cashAddr.getParameters())) {
+                    final String label = AddressBookProvider.resolveLabel(activity, cashAddr.toBase58());
+                    validatedAddress = new AddressAndLabel(Constants.NETWORK_PARAMETERS, cashAddr.toBase58(), label);
+                    receivingAddressView.setText(null);
+                    log.info("Locked to valid address: {}", validatedAddress);
+                }
+            } catch (final AddressFormatException x2)
+            {
+                //swallow
+            }
         }
     }
 

@@ -33,6 +33,8 @@ import org.bitcoin.protocols.payments.Protos;
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.CashAddress;
+import org.bitcoinj.core.CashAddressFactory;
 import org.bitcoinj.core.DumpedPrivateKey;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.ProtocolException;
@@ -112,6 +114,16 @@ public abstract class InputParser {
             } else if (PATTERN_BITCOIN_ADDRESS.matcher(input).matches()) {
                 try {
                     final Address address = Address.fromBase58(Constants.NETWORK_PARAMETERS, input);
+
+                    handlePaymentIntent(PaymentIntent.fromAddress(address, null));
+                } catch (final AddressFormatException x) {
+                    log.info("got invalid address", x);
+
+                    error(R.string.input_parser_invalid_address);
+                }
+            } else if (PATTERN_CASH_ADDRESS.matcher(input).matches()) {
+                try {
+                    final CashAddress address = CashAddressFactory.create().getFromFormattedAddress(Constants.NETWORK_PARAMETERS, input);
 
                     handlePaymentIntent(PaymentIntent.fromAddress(address, null));
                 } catch (final AddressFormatException x) {
@@ -375,4 +387,5 @@ public abstract class InputParser {
             .compile("6P" + "[" + new String(Base58.ALPHABET) + "]{56}");
     private static final Pattern PATTERN_TRANSACTION = Pattern
             .compile("[0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ$\\*\\+\\-\\.\\/\\:]{100,}");
+    private static final Pattern PATTERN_CASH_ADDRESS = Pattern.compile ("[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{40}");
 }
