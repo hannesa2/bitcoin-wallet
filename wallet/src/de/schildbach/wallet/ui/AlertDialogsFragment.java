@@ -36,10 +36,6 @@ import android.os.Process;
 import android.text.format.DateUtils;
 
 import com.google.common.base.Splitter;
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.HttpUrl;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +47,10 @@ import de.schildbach.wallet.BuildConfig;
 import de.schildbach.wallet.Constants;
 import de.schildbach.wallet.R;
 import de.schildbach.wallet.WalletApplication;
+import okhttp3.Call;
+import okhttp3.HttpUrl;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * @author Andreas Schildbach

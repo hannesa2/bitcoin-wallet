@@ -159,7 +159,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFile 'proguard.cfg'
             if (System.getenv("CI_SERVER")) {
                 signingConfig signingConfigs.release
