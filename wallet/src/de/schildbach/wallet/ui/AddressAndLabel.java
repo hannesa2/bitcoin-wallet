@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.CashAddressFactory;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.WrongNetworkException;
 
@@ -37,15 +38,18 @@ import android.os.Parcelable;
 public class AddressAndLabel implements Parcelable {
     public final Address address;
     public final String label;
+    public final boolean isCashAddr;
 
-    public AddressAndLabel(final Address address, @Nullable final String label) {
+    public AddressAndLabel(final Address address, @Nullable final String label, final boolean isCashAddr) {
         this.address = address;
         this.label = label;
+        this.isCashAddr = isCashAddr;
     }
 
-    public AddressAndLabel(final NetworkParameters addressParams, final String address, @Nullable final String label)
+    public AddressAndLabel(final NetworkParameters addressParams, final String address, @Nullable final String label, boolean isCashAddr)
             throws WrongNetworkException, AddressFormatException {
-        this(Address.fromBase58(addressParams, address), label);
+        this(isCashAddr ? CashAddressFactory.create().getFromFormattedAddress(addressParams, address) :
+                Address.fromBase58(addressParams, address), label, isCashAddr);
     }
 
     @Override
@@ -86,6 +90,7 @@ public class AddressAndLabel implements Parcelable {
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeString(address.toBase58());
         dest.writeString(label);
+        dest.writeByte((byte)(isCashAddr ? 1 : 0));
     }
 
     public static final Parcelable.Creator<AddressAndLabel> CREATOR = new Parcelable.Creator<AddressAndLabel>() {
@@ -103,5 +108,6 @@ public class AddressAndLabel implements Parcelable {
     private AddressAndLabel(final Parcel in) {
         address = Address.fromBase58(Constants.NETWORK_PARAMETERS, in.readString());
         label = in.readString();
+        isCashAddr = in.readByte() == 1;
     }
 }

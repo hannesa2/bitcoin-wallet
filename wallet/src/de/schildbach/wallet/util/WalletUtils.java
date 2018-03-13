@@ -37,6 +37,7 @@ import javax.annotation.Nullable;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.CashAddressFactory;
 import org.bitcoinj.core.DumpedPrivateKey;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.NetworkParameters;
@@ -65,8 +66,14 @@ import android.text.style.TypefaceSpan;
  * @author Andreas Schildbach
  */
 public class WalletUtils {
-    public static Editable formatAddress(final Address address, final int groupSize, final int lineSize) {
-        return formatHash(address.toBase58(), groupSize, lineSize);
+    public static Editable formatAddress(final Address address, final int groupSize, final int lineSize)
+    {
+        return formatAddress(address, groupSize, lineSize, false);
+    }
+    public static Editable formatAddress(final Address address, final int groupSize, final int lineSize, boolean isCashAddr) {
+        return formatHash(isCashAddr ?
+                CashAddressFactory.create().getFromBase58(Constants.NETWORK_PARAMETERS, address.toBase58()).toString().replace(Constants.NETWORK_PARAMETERS.getCashAddrPrefix()+":", "") :
+                address.toBase58(), groupSize, lineSize);
     }
 
     public static Editable formatAddress(@Nullable final String prefix, final Address address, final int groupSize,

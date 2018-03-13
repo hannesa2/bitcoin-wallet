@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.CashAddress;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.ScriptException;
 import org.bitcoinj.core.Transaction;
@@ -163,12 +164,14 @@ public final class PaymentIntent implements Parcelable {
     @Nullable
     public final byte[] paymentRequestHash;
 
+    public boolean isCashAddr;
+
     private static final Logger log = LoggerFactory.getLogger(PaymentIntent.class);
 
     public PaymentIntent(@Nullable final Standard standard, @Nullable final String payeeName,
             @Nullable final String payeeVerifiedBy, @Nullable final Output[] outputs, @Nullable final String memo,
             @Nullable final String paymentUrl, @Nullable final byte[] payeeData,
-            @Nullable final String paymentRequestUrl, @Nullable final byte[] paymentRequestHash) {
+            @Nullable final String paymentRequestUrl, @Nullable final byte[] paymentRequestHash, final boolean isCashAddr) {
         this.standard = standard;
         this.payeeName = payeeName;
         this.payeeVerifiedBy = payeeVerifiedBy;
@@ -178,14 +181,15 @@ public final class PaymentIntent implements Parcelable {
         this.payeeData = payeeData;
         this.paymentRequestUrl = paymentRequestUrl;
         this.paymentRequestHash = paymentRequestHash;
+        this.isCashAddr = isCashAddr;
     }
 
     private PaymentIntent(final Address address, @Nullable final String addressLabel) {
-        this(null, null, null, buildSimplePayTo(Coin.ZERO, address), addressLabel, null, null, null, null);
+        this(null, null, null, buildSimplePayTo(Coin.ZERO, address), addressLabel, null, null, null, null, address instanceof CashAddress);
     }
 
     public static PaymentIntent blank() {
-        return new PaymentIntent(null, null, null, null, null, null, null, null, null);
+        return new PaymentIntent(null, null, null, null, null, null, null, null, null, false);
     }
 
     public static PaymentIntent fromAddress(final Address address, @Nullable final String addressLabel) {
@@ -201,7 +205,7 @@ public final class PaymentIntent implements Parcelable {
             @Nullable final Coin amount) throws WrongNetworkException, AddressFormatException {
         return new PaymentIntent(null, null, null,
                 buildSimplePayTo(amount, Address.fromBase58(Constants.NETWORK_PARAMETERS, address)), addressLabel, null,
-                null, null, null);
+                null, null, null, false);
     }
 
     public static PaymentIntent fromBitcoinUri(final BitcoinURI bitcoinUri) {
@@ -213,7 +217,7 @@ public final class PaymentIntent implements Parcelable {
 
         return new PaymentIntent(PaymentIntent.Standard.BIP21, null, null, outputs, bitcoinUri.getLabel(),
                 bluetoothMac != null ? "bt:" + bluetoothMac : null, null, bitcoinUri.getPaymentRequestUrl(),
-                paymentRequestHash);
+                paymentRequestHash, address instanceof CashAddress);
     }
 
     private static final BaseEncoding BASE64URL = BaseEncoding.base64Url().omitPadding();
@@ -249,7 +253,7 @@ public final class PaymentIntent implements Parcelable {
             outputs = buildSimplePayTo(editedAmount, editedAddress);
         }
 
-        return new PaymentIntent(standard, payeeName, payeeVerifiedBy, outputs, memo, null, payeeData, null, null);
+        return new PaymentIntent(standard, payeeName, payeeVerifiedBy, outputs, memo, null, payeeData, null, null, false);
     }
 
     public SendRequest toSendRequest() {
@@ -462,6 +466,7 @@ public final class PaymentIntent implements Parcelable {
         } else {
             dest.writeInt(0);
         }
+        dest.writeByte((byte)(isCashAddr ? 1 : 0));
     }
 
     public static final Parcelable.Creator<PaymentIntent> CREATOR = new Parcelable.Creator<PaymentIntent>() {
@@ -511,5 +516,6 @@ public final class PaymentIntent implements Parcelable {
         } else {
             paymentRequestHash = null;
         }
+        isCashAddr = in.readByte() == 1;
     }
 }

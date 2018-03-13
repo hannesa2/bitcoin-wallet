@@ -335,7 +335,7 @@ public abstract class InputParser {
 
             final PaymentIntent paymentIntent = new PaymentIntent(PaymentIntent.Standard.BIP70, pkiName, pkiCaName,
                     outputs.toArray(new PaymentIntent.Output[0]), memo, paymentUrl, merchantData, null,
-                    paymentRequestHash);
+                    paymentRequestHash, false);
 
             if (paymentIntent.hasPaymentUrl() && !paymentIntent.isSupportedPaymentUrl())
                 throw new PaymentProtocolException.InvalidPaymentURL(
@@ -387,5 +387,5 @@ public abstract class InputParser {
             .compile("6P" + "[" + new String(Base58.ALPHABET) + "]{56}");
     private static final Pattern PATTERN_TRANSACTION = Pattern
             .compile("[0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ$\\*\\+\\-\\.\\/\\:]{100,}");
-    private static final Pattern PATTERN_CASH_ADDRESS = Pattern.compile ("[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{40}");
+    private static final Pattern PATTERN_CASH_ADDRESS = Pattern.compile ("[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{42}");
 }

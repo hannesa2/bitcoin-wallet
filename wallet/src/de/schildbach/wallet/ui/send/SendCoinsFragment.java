@@ -244,11 +244,18 @@ public final class SendCoinsFragment extends Fragment {
             final String address = cursor.getString(cursor.getColumnIndexOrThrow(AddressBookProvider.KEY_ADDRESS));
             final String label = cursor.getString(cursor.getColumnIndexOrThrow(AddressBookProvider.KEY_LABEL));
             try {
-                validatedAddress = new AddressAndLabel(Constants.NETWORK_PARAMETERS, address, label);
+                validatedAddress = new AddressAndLabel(Constants.NETWORK_PARAMETERS, address, label, false);
                 receivingAddressView.setText(null);
                 log.info("Picked valid address from suggestions: {}", validatedAddress);
             } catch (final AddressFormatException x) {
-                // swallow
+                try {
+                    validatedAddress = new AddressAndLabel(Constants.NETWORK_PARAMETERS, address, label, true);
+                    receivingAddressView.setText(null);
+                    log.info("Picked valid address from suggestions: {}", validatedAddress);
+                }
+                catch (final AddressFormatException x2) {
+                    // swallow
+                }
             }
         }
     }
@@ -841,7 +848,7 @@ public final class SendCoinsFragment extends Fragment {
             if (!addressStr.isEmpty()
                     && Constants.NETWORK_PARAMETERS.equals(Address.getParametersFromAddress(addressStr))) {
                 final String label = AddressBookProvider.resolveLabel(activity, addressStr);
-                validatedAddress = new AddressAndLabel(Constants.NETWORK_PARAMETERS, addressStr, label);
+                validatedAddress = new AddressAndLabel(Constants.NETWORK_PARAMETERS, addressStr, label, false);
                 receivingAddressView.setText(null);
                 log.info("Locked to valid address: {}", validatedAddress);
             }
@@ -854,7 +861,7 @@ public final class SendCoinsFragment extends Fragment {
                 if (!addressStr.isEmpty()
                         && Constants.NETWORK_PARAMETERS.equals(cashAddr.getParameters())) {
                     final String label = AddressBookProvider.resolveLabel(activity, cashAddr.toBase58());
-                    validatedAddress = new AddressAndLabel(Constants.NETWORK_PARAMETERS, cashAddr.toBase58(), label);
+                    validatedAddress = new AddressAndLabel(Constants.NETWORK_PARAMETERS, cashAddr.toString(), label, true);
                     receivingAddressView.setText(null);
                     log.info("Locked to valid address: {}", validatedAddress);
                 }
@@ -1180,7 +1187,7 @@ public final class SendCoinsFragment extends Fragment {
 
                 if (paymentIntent.hasAddress())
                     receivingStaticAddressView.setText(WalletUtils.formatAddress(paymentIntent.getAddress(),
-                            Constants.ADDRESS_FORMAT_GROUP_SIZE, Constants.ADDRESS_FORMAT_LINE_SIZE));
+                            Constants.ADDRESS_FORMAT_GROUP_SIZE, Constants.ADDRESS_FORMAT_LINE_SIZE, paymentIntent.isCashAddr));
                 else
                     receivingStaticAddressView.setText(R.string.send_coins_fragment_receiving_address_complex);
             } else if (validatedAddress != null) {
@@ -1189,7 +1196,7 @@ public final class SendCoinsFragment extends Fragment {
                 receivingStaticView.setVisibility(View.VISIBLE);
 
                 receivingStaticAddressView.setText(WalletUtils.formatAddress(validatedAddress.address,
-                        Constants.ADDRESS_FORMAT_GROUP_SIZE, Constants.ADDRESS_FORMAT_LINE_SIZE));
+                        Constants.ADDRESS_FORMAT_GROUP_SIZE, Constants.ADDRESS_FORMAT_LINE_SIZE, validatedAddress.isCashAddr));
                 final String addressBookLabel = AddressBookProvider.resolveLabel(activity,
                         validatedAddress.address.toBase58());
                 final String staticLabel;
