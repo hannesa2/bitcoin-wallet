@@ -1,3 +1,2 @@
-tls:mash.1209k.com
-tls:electron.ueo.ch
 tls:abc.vom-stausee.de:52002
+tls:electrum.leblancnet.us:50012
