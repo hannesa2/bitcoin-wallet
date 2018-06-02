@@ -5,8 +5,6 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.1'
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
 
         classpath 'com.android.tools.build:gradle-experimental:0.11.1'
         classpath('fr.avianey.androidsvgdrawable:gradle-plugin:3.0.0') {
@@ -18,9 +16,9 @@ buildscript {
 }
 
 ext {
-    buildTools = "27.0.2"
-    compileSdk = 26
-    supportLib = "27.0.2"
+    buildTools = "27.0.3"
+    compileSdk = 27
+    supportLib = "27.1.1"
 }
 
 allprojects {
