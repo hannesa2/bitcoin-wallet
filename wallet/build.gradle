@@ -122,6 +122,12 @@ android {
         exclude 'org.bitcoin.production.checkpoints.txt'
         exclude 'org.bitcoin.test.checkpoints.txt'
     }
+
+    // https://developer.android.com/studio/write/java8-support.html for details. Alternatively, increase the minSdkVersion to 26 or above.
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
 }
 
 task svgToPngMipmap(type: SvgDrawableTask) {
