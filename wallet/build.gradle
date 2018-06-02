@@ -3,10 +3,6 @@ import fr.avianey.androidsvgdrawable.gradle.SvgDrawableTask
 apply plugin: 'com.android.application'
 apply plugin: 'androidsvgdrawable'
 
-repositories {
-    mavenLocal()
-}
-
 def versionNr = '5'
 
 dependencies {
@@ -22,7 +18,7 @@ dependencies {
     compile "com.android.support:support-core-utils:$supportLib"
     compile "com.android.support:recyclerview-v7:$supportLib"
     compile "com.android.support:cardview-v7:$supportLib"
-    compile 'org.bitcoincashj:bitcoincashj-core:0.15-SNAPSHOT'
+    implementation 'com.github.bitcoincash-wallet:bitcoinj:cashaddr-enhance-SNAPSHOT' // it's better than 'com.github.bitcoincash-wallet:bitcoinj:b6360e0858'
     compile 'com.google.protobuf:protobuf-java:2.6.1'
     compile 'com.google.guava:guava:20.0'
     compile 'com.google.zxing:core:3.3.1'
